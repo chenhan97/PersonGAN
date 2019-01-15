@@ -26,8 +26,15 @@ Python(>=3.5)
 ********************************************************************************************************************************
 # Start
 
-You can start training by typing `python3 main.py` in the command line to run the main.py file.
-You need to enter named entities to determine the topic of generated text. (Note: One space between each named entity and all named entities are lowercase)
+1.You can start training by typing `python3 main.py` in the command line to run the main.py file.
+
+2.You need to enter named entities to determine the topic of generated text. 
+
+(Note: One space between each named entity and all named entities are lowercase)
+
+3.You also need to enter an author's name to let the model extract personalized information from the author's text.
+
+(For example, you can use the text stored in `/PersonGAN/Preparation/data/Simon_Denyer` as a training corpus, so you need to enter `Simon_Denyer` at this stage to specify the search path for the program.)
 
 # Result
 
