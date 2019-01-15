@@ -2,7 +2,10 @@
 
 *******************************************************************************************************************************
 Author: Chenhan Yuan
-Email: chris.yuan.ece@gmail.com; yuanchenhan@std.uestc.edu.cn 
+
+Email: chris.yuan.ece@gmail.com; 
+
+yuanchenhan@std.uestc.edu.cn 
 *******************************************************************************************************************************
 PersonGAN is a text generation model based on LeakGAN. This model can generate sentences with personalized writing style. 
 At the same time, this model also possesses the ability to generate sentences related to user-defined topic.
