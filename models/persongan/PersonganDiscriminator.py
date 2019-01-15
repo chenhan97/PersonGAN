@@ -107,37 +107,41 @@ class Discriminator(object):
                     self.StrucWord = [int(x) for x in self.StrucWord]
                     self.StrucWordEmb = tf.nn.embedding_lookup(W_fe,self.StrucWord)
                     self.TempSeqLen = self.sequence_length
+                    self.TempSeqLen_ = self.sequence_length
+                    self.MaxWord = self.max_word
+                    self.TagLen = self.tag_len
+                    self.DisEmbDim = self.dis_emb_dim
                     def high_fn(feature):
                         temp,word_vec,flag = tf.map_fn(low_fn,feature,dtype=(tf.float32,tf.float32,tf.int32))
-                        def cond_bi(i,Temp,feature,temp,OldTag,OldProb):
-                            return i<self.TempSeqLen -1
-                        def body_bi(i,Temp,feature,temp,OldTag,OldProb):
-                            def false_bi(feature_,OldTag):
+                        def cond_bi(i,Temp,feature,temp,OldTag,OldProb,NewTag,NewProb,const,t):
+                            return i<self.TempSeqLen_ -1
+                        def body_bi(i,Temp,feature,temp,OldTag,OldProb,NewTag,NewProb,const,t):
+                            def false_bi(feature_,OldTag,const):
                                 def true_low_bi(OldTag):
-                                    return 0.0,OldTag
+                                    return const,OldTag
                                 def false_low_bi(OldTag,feature_):
                                     NewTag = self.WordTagIndexArray.read(feature_)
-                                    return self.TagProbArray.read(tf.to_int32(tf.multiply(OldTag,self.tag_len)+NewTag+1)),NewTag
-                                NewProb,NewTag = tf.cond(tf.less(feature_,0),lambda: true_low_bi(OldTag),
+                                    return self.TagProbArray.read(tf.to_int32(tf.multiply(OldTag,self.TagLen)+NewTag)),NewTag
+                                NewProb,NewTag = tf.cond(tf.less(feature_,tf.constant(0)),lambda: true_low_bi(OldTag),
                                                   lambda: false_low_bi(OldTag,feature_))
                                 return NewProb,NewTag
-                            def true_up_bi(OldTag):
-                                return 0.0,OldTag
+                            def true_up_bi(OldTag,const):
+                                return const,OldTag
                             def last_tag(OldTag,OldProb):
                                 return OldProb,OldTag
-                            def not_last_tag(f,OldTag):
-                                NewProb,NewTag = tf.cond(tf.greater(f,self.max_word),lambda:true_up_bi(OldTag),
-                                        lambda: false_bi(f,OldTag))                                
-                                return NewProb,NewTag                                
+                            
+                            def not_last_tag(f,OldTag,const):
+                                NewProb,NewTag = tf.cond(tf.greater(f,self.MaxWord),lambda:true_up_bi(OldTag,const),
+                                        lambda: false_bi(f,OldTag,const))
+                                return NewProb,NewTag 
                             i = i + 1
-                            NewProb,NewTag = tf.cond(tf.equal(i,self.TempSeqLen),lambda: last_tag(OldTag,OldProb),lambda: not_last_tag(feature[i],OldTag))
-                            new_temp = tf.cond(tf.equal(i,0),lambda: tf.expand_dims(tf.cond(tf.greater(OldProb,NewProb), lambda: OldProb*temp[i-1], lambda: NewProb*temp[i-1]),0),
-                                               lambda:tf.concat([Temp, tf.expand_dims(tf.cond(tf.greater(OldProb,NewProb), lambda: OldProb*temp[i-1], lambda: NewProb*temp[i-1]),0)],0))
-                            return i,new_temp,feature,temp,NewTag,NewProb
+                            NewProb,NewTag = tf.cond(tf.equal(i,self.TempSeqLen_),lambda: last_tag(OldTag,OldProb),lambda:not_last_tag(feature[i],OldTag,const))
+                            Temp = tf.concat([Temp,tf.expand_dims(tf.multiply(NewProb,temp[i-1]),0)],0)
+                            return i,Temp,feature,temp,NewTag,NewProb,NewTag,NewProb,const,t
                         k = tf.constant(0)
                         k_ = tf.constant(0.0)
-                        j,Newtemp,_,_,_,_ = tf.while_loop(cond_bi,body_bi,[k,tf.zeros([1,self.dis_emb_dim]),feature,temp,self.WordTagIndexArray.read(0),k_],
-                                                       shape_invariants=[k.get_shape(),tf.TensorShape([None,self.dis_emb_dim]),feature.get_shape(),temp.get_shape(),k.get_shape(),k.get_shape()])
+                        _,Newtemp,_,_,_,_,_,_,_,_ = tf.while_loop(cond_bi,body_bi,[k,tf.zeros([1,self.DisEmbDim]),feature,temp,self.WordTagIndexArray.read(0),k_,self.WordTagIndexArray.read(0),k_,k_,temp[0]],
+                                                       shape_invariants=[k.get_shape(),tf.TensorShape([None,self.DisEmbDim]),feature.get_shape(),temp.get_shape(),k.get_shape(),k.get_shape(),k.get_shape(),k.get_shape(),k.get_shape(),tf.TensorShape(None)])
                         def body_vec(i,const,threhold,word_vec,vec):
                             def true_vec(i,j):
                                 return i,j
@@ -152,7 +156,6 @@ class Discriminator(object):
                         const = tf.Variable(lambda: tf.constant(0.0,dtype=tf.float32))
                         i,_,self.TempSeqLen,word_vec,vec = tf.while_loop(cond_vec,body_vec,[0,const,self.TempSeqLen,word_vec,tf.zeros(self.dis_emb_dim)])
                         return Newtemp,word_vec,flag,vec
-                    
                     def low_fn(elem):
                         flag = 0
                         key_word_vec = tf.convert_to_tensor([0.0 for x in range(self.dis_emb_dim)])
