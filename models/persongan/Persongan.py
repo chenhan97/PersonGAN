@@ -125,7 +125,7 @@ def generate_samples_gen(sess, trainable_model, batch_size, generated_num, iw_di
                             buffer_new.append(str(x))
                 buffer_last = ' '.join(buffer_new) + '\n'
                 fout.write(buffer_last)
-    with open(output_file,'r') as Reader, open(real_file,'w') as Writer:
+    with open(output_file,'r') as Reader, open(real_file+str(time()),'w') as Writer:
         for index,line in enumerate(Reader):
             word_index = line.split()
             words = []
