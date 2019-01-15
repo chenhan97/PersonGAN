@@ -9,14 +9,19 @@ At the same time, this model also possesses the ability to generate sentences re
 This code is the source code of PersonGAN model proposed by Mr. Chenhan Yuan and Prof. Yi-chin Huang. 
 *******************************************************************************************************************************
 # Requirements
+Ubuntu(16.04)
 
-× Ubuntu(16.04)
-× Tensorflow(>=1.11.0)
-× gensim
-× NLTK(>=3.4)
-× Java Runtime Environment(JRE)
-× CUDA(>=7.5)(For GPU)
-× Python(>=3.5)
+Tensorflow(>=1.11.0)
+
+gensim
+
+NLTK(>=3.4)
+
+Java Runtime Environment(JRE)
+
+CUDA(>=7.5)(For GPU)
+
+Python(>=3.5)
 
 ********************************************************************************************************************************
 # Start
