@@ -15,6 +15,8 @@ Tensorflow(>=1.11.0)
 
 gensim
 
+colorama
+
 NLTK(>=3.4)
 
 Java Runtime Environment(JRE)
