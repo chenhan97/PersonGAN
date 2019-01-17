@@ -35,5 +35,4 @@ def TagProb(Readfile,file):
 
 def GetTagVec(author_name):
     TagProbDict = TagProb(sys.path[0]+"/Preparation/save/data/"+author_name,sys.path[0]+"/Preparation/save/tagprob")
-    print(TagProbDict)
     return TagProbDict
