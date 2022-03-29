@@ -4,7 +4,7 @@
 PersonGAN is a text generation model based on LeakGAN. This model can generate sentences with personalized writing style. 
 At the same time, this model also possesses the ability to generate sentences related to user-defined topic.
 
-If you got any questions or suggestions when using this code, you are welcomed to contact chris.yuan.ece@gmail.com or yuanchenhan@std.uestc.edu.cn
+If you got any questions or suggestions when using this code, you are welcomed to contact me@UoM
 *******************************************************************************************************************************
 ## Requirements
   * Ubuntu(16.04)
